@@ -564,7 +564,7 @@ Feature: Dialer Control
             | dialerName     | Rule_1 |
             | phone          | 1      |
             | startHour      | 09:00  |
-            | endHour        | 18:00  |
+            | endHour        | 23:00  |
             | maxDialerTries | 3      |
         Then user click on the recycle button
         When user set the following values in the recycle form:
@@ -600,7 +600,7 @@ Feature: Dialer Control
             | dialerName     | Rule_1 |
             | phone          | 1      |
             | startHour      | 09:00  |
-            | endHour        | 18:00  |
+            | endHour        | 23:00  |
             | maxDialerTries | 3      |
         Then user click on the recycle button
         When user set the following values in the recycle form:
@@ -635,7 +635,7 @@ Feature: Dialer Control
             | dialerName     | Rule_1 |
             | phone          | 1      |
             | startHour      | 09:00  |
-            | endHour        | 18:00  |
+            | endHour        | 23:00  |
             | maxDialerTries | 3      |
         Then user click on the recycle button
         When user set the following values in the recycle form:
@@ -676,7 +676,7 @@ Feature: Dialer Control
             | dialerName     | Rule_1 |
             | phone          | 1,2    |
             | startHour      | 09:00  |
-            | endHour        | 18:00  |
+            | endHour        | 23:00  |
             | maxDialerTries | 3      |
         Then user click on the recycle button
         When user set the following values in the recycle form:
@@ -711,7 +711,7 @@ Feature: Dialer Control
             | dialerName     | Rule_1 |
             | phone          | 1,2    |
             | startHour      | 09:00  |
-            | endHour        | 18:00  |
+            | endHour        | 23:00  |
             | maxDialerTries | 3      |
         Then user click on the recycle button
         When user set the following values in the recycle form:
@@ -756,7 +756,7 @@ Feature: Dialer Control
             | dialerName     | Rule_1 |
             | phone          | 1,2    |
             | startHour      | 09:00  |
-            | endHour        | 18:00  |
+            | endHour        | 23:00  |
             | maxDialerTries | 3      |
         Then user click on the recycle button
         When user set the following values in the recycle form:
@@ -803,7 +803,7 @@ Feature: Dialer Control
             | dialerName     | Rule_1 |
             | phone          | 2      |
             | startHour      | 09:00  |
-            | endHour        | 18:00  |
+            | endHour        | 23:00  |
             | maxDialerTries | 3      |
         Then user click on the recycle button
         When user set the following values in the recycle form:
@@ -841,7 +841,7 @@ Feature: Dialer Control
             | dialerName     | Rule_1          |
             | phone          | 1,2,3,4,5,6,7,8 |
             | startHour      | 09:00           |
-            | endHour        | 18:00           |
+            | endHour        | 23:00           |
             | maxDialerTries | 2               |
         Then user click on the recycle button
         When user set the following values in the recycle form:
@@ -890,7 +890,7 @@ Feature: Dialer Control
             | dialerName     | Rule_1 |
             | phone          | 2      |
             | startHour      | 09:00  |
-            | endHour        | 18:00  |
+            | endHour        | 23:00  |
             | maxDialerTries | 3      |
         Then user click on the recycle button
         When user set the following values in the recycle form:
@@ -967,7 +967,7 @@ Feature: Dialer Control
             | dialerName     | Rule_1 |
             | phone          | 1,2    |
             | startHour      | 09:00  |
-            | endHour        | 18:00  |
+            | endHour        | 23:00  |
             | maxDialerTries | 3      |
         Then user click on the recycle button
         When user set the following values in the recycle form:
@@ -1005,7 +1005,7 @@ Feature: Dialer Control
             | dialerName     | Rule_1 |
             | phone          | 1      |
             | startHour      | 09:00  |
-            | endHour        | 18:00  |
+            | endHour        | 23:00  |
             | maxDialerTries | 3      |
         Then user click on the recycle button
         When user set the following values in the recycle form:
@@ -1044,7 +1044,7 @@ Feature: Dialer Control
             | dialerName     | Rule_1 |
             | phone          | 1      |
             | startHour      | 09:00  |
-            | endHour        | 18:00  |
+            | endHour        | 23:00  |
             | maxDialerTries | 3      |
         Then user click on the recycle button
         When user set the following values in the recycle form:
@@ -1073,6 +1073,157 @@ Feature: Dialer Control
         Then user click the previously created DB
         And user validate that all contacts are closed by 'Closed'
 
+    @5853
+    Scenario: Power dial: Ratio 5 - sort by outcome - rule with phone1 only (valid)
+        When user navigates to dialer
+        Then select the dialer type 'power'
+        Then user navigates to Dialer rules manager tab
+        And user configure the folllowing rule:
+            | dialerName     | Rule_1 |
+            | phone          | 1      |
+            | startHour      | 09:00  |
+            | endHour        | 23:00  |
+            | maxDialerTries | 3      |
+        Then user click on the recycle button
+        When user set the following values in the recycle form:
+            | callOutcome | recycleInterval | maxTries |
+            | Busy        | 4h              | 3        |
+        And user clicks the finish button
+        When Navigate to Database Manager
+        And Create Database
+            | browseFile            | databaseCampaign | optionName | optionPhone1 |
+            | fixtures/database.csv | 1                | 0          | 1            |
+        Then load the database
+            | browseFile            | numOfColumnsToUpload | databaseCampaign | optionName | optionPhone1 |
+            | fixtures/database.csv | 1                    | 1                | 0          | 1            |
+        When user navigates to dialer control menu
+        Then user choose the following configurations in dialer control menu:
+            | campaign             | OutboundCampaign_1   |
+            | sortContactsPriority | By outcome and field |
+            | ratio                | 5                    |
+        And login to Voice Channel with '100' extension
+        And user selects 'OutboundCampaign_1' campaign
+        Then verify all contacts loaded in the database are triggered by the dialer
+            | number       | 910261828        |
+            | outcomeGroup | Call Again Later |
+            | outcomeName  | Ok               |
+        When Navigate to Database Manager
+        Then user click the previously created DB
+        And user validate that all contacts are closed by 'Closed'
+
+    @5697
+    Scenario: Power dial: Ratio 1 - sort by outcome - rule with phone2 only (valid)
+        When user navigates to dialer
+        Then select the dialer type 'power'
+        Then user navigates to Dialer rules manager tab
+        And user configure the folllowing rule:
+            | dialerName     | Rule_1 |
+            | phone          | 2      |
+            | startHour      | 09:00  |
+            | endHour        | 23:00  |
+            | maxDialerTries | 3      |
+        Then user click on the recycle button
+        When user set the following values in the recycle form:
+            | callOutcome | recycleInterval | maxTries |
+            | Busy        | 4h              | 3        |
+        And user clicks the finish button
+        When Navigate to Database Manager
+        And Create Database
+            | browseFile           | databaseCampaign | optionName | optionPhone1 | phone  | phoneID |
+            | fixtures/db_5721.csv | 1                | 0          | 1            | second | 2       |
+        Then load the database
+            | browseFile           | numOfColumnsToUpload | databaseCampaign | optionName | optionPhone1 | phone  | phoneID |
+            | fixtures/db_5721.csv | 1                    | 1                | 0          | 1            | second | 2       |
+        When user navigates to dialer control menu
+        Then user choose the following configurations in dialer control menu:
+            | campaign             | OutboundCampaign_1   |
+            | sortContactsPriority | By outcome and field |
+            | ratio                | 1                    |
+        And login to Voice Channel with '100' extension
+        And user selects 'OutboundCampaign_1' campaign
+        And let user wait for '2' seconds
+        Then user state should be 'talking'
+        And verify '910261829' is triggered by the dialer
+        When user disconnects the call
+        And user state should be 'outcomes'
+        Then user submits 'Call Again Later' outcome and select 'Ok' outcome name
+        When Navigate to Database Manager
+        Then user click the previously created DB
+        And user validate that all contacts are closed by 'Closed'
+
+    @5698
+    Scenario: Power dial: Ratio 1 - sort by outcome - rule with phone1 (valid) and phone2 (invalid)
+        When user navigates to dialer
+        Then select the dialer type 'power'
+        Then user navigates to Dialer rules manager tab
+        And user configure the folllowing rule:
+            | dialerName     | Rule_1 |
+            | phone          | 1,2    |
+            | startHour      | 09:00  |
+            | endHour        | 23:00  |
+            | maxDialerTries | 3      |
+        Then user click on the recycle button
+        When user set the following values in the recycle form:
+            | callOutcome | recycleInterval | maxTries |
+            | Busy        | 4h              | 3        |
+        And user clicks the finish button
+        When Navigate to Database Manager
+        And Create Database
+            | browseFile                 | databaseCampaign | optionName | optionPhone1 | phone  | phoneID |
+            | fixtures/database_5723.csv | 1                | 0          | 1            | second | 2       |
+        Then load the database
+            | browseFile                 | numOfColumnsToUpload | databaseCampaign | optionName | optionPhone1 | phone  | phoneID |
+            | fixtures/database_5723.csv | 1                    | 1                | 0          | 1            | second | 2       |
+        When user navigates to dialer control menu
+        Then user choose the following configurations in dialer control menu:
+            | campaign             | OutboundCampaign_1   |
+            | sortContactsPriority | By outcome and field |
+            | ratio                | 1                    |
+        And login to Voice Channel with '100' extension
+        And user selects 'OutboundCampaign_1' campaign
+        Then verify all contacts loaded in the database are triggered by the dialer
+            | number       | 808888888        |
+            | outcomeGroup | Call Again Later |
+            | outcomeName  | Ok               |
+        When Navigate to Database Manager
+        Then user click the previously created DB
+        And user validate that all contacts are closed by 'Closed'
+
+    @5879
+    Scenario: Power dial: Ratio 5 - sort by outcome - rule with phone1 only (invalid)
+        When user navigates to dialer
+        Then select the dialer type 'power'
+        Then user navigates to Dialer rules manager tab
+        And user configure the folllowing rule:
+            | dialerName     | Rule_1 |
+            | phone          | 1      |
+            | startHour      | 09:00  |
+            | endHour        | 23:00  |
+            | maxDialerTries | 3      |
+        Then user click on the recycle button
+        When user set the following values in the recycle form:
+            | callOutcome | recycleInterval | maxTries |
+            | Busy        | 4h              | 3        |
+        And user clicks the finish button
+        When Navigate to Database Manager
+        And Create Database
+            | browseFile                 | databaseCampaign | optionName | optionPhone1 |
+            | fixtures/database_5879.csv | 1                | 0          | 1            |
+        Then load the database
+            | browseFile                 | numOfColumnsToUpload | databaseCampaign | optionName | optionPhone1 |
+            | fixtures/database_5879.csv | 1                    | 1                | 0          | 1            |
+        When user navigates to dialer control menu
+        Then user choose the following configurations in dialer control menu:
+            | campaign             | OutboundCampaign_1   |
+            | sortContactsPriority | By outcome and field |
+            | ratio                | 1                    |
+        And login to Voice Channel with '100' extension
+        And user selects 'OutboundCampaign_1' campaign
+        And user state should be 'ready'
+        When Navigate to Database Manager
+        Then user click the previously created DB
+        And user validate that all contacts are closed by 'Closed'
+
     @5700
     Scenario: Power dial: Ratio 1 - sort by outcome - rule with phone1 (valid) and phone2 (invalid) - reaching max recycle tries
         When user navigates to dialer
@@ -1082,7 +1233,7 @@ Feature: Dialer Control
             | dialerName     | Rule_1 |
             | phone          | 1,2    |
             | startHour      | 09:00  |
-            | endHour        | 18:00  |
+            | endHour        | 23:00  |
             | maxDialerTries | 3      |
         Then user click on the recycle button
         When user set the following values in the recycle form:
@@ -1125,67 +1276,29 @@ Feature: Dialer Control
         Then user click the previously created DB
         And user validate that all contacts are closed by 'Closed'
 
-    @5853
-    Scenario: Power dial: Ratio 5 - sort by outcome - rule with phone1 only (valid)
+    @5702
+    Scenario: Power dial: Ratio 1 - sort by outcome - rule with all 8 phones valid - phone numbers in sequential order
         When user navigates to dialer
         Then select the dialer type 'power'
         Then user navigates to Dialer rules manager tab
         And user configure the folllowing rule:
-            | dialerName     | Rule_1 |
-            | phone          | 1      |
-            | startHour      | 09:00  |
-            | endHour        | 18:00  |
-            | maxDialerTries | 3      |
+            | dialerName     | Rule_1          |
+            | phone          | 1,2,3,4,5,6,7,8 |
+            | startHour      | 09:00           |
+            | endHour        | 23:00           |
+            | maxDialerTries | 2               |
         Then user click on the recycle button
         When user set the following values in the recycle form:
             | callOutcome | recycleInterval | maxTries |
-            | Busy        | 4h              | 3        |
+            | Busy        | 5m              | 3        |
         And user clicks the finish button
         When Navigate to Database Manager
         And Create Database
-            | browseFile            | databaseCampaign | optionName | optionPhone1 |
-            | fixtures/database.csv | 1                | 0          | 1            |
+            | browseFile                 | databaseCampaign | optionName | optionPhone1 | phone                                          | phoneID       |
+            | fixtures/database_5702.csv | 1                | 0          | 1            | second,third,fourth,fifth,sixth,seventh,eighth | 2,3,4,5,6,7,8 |
         Then load the database
-            | browseFile            | numOfColumnsToUpload | databaseCampaign | optionName | optionPhone1 |
-            | fixtures/database.csv | 1                    | 1                | 0          | 1            |
-        When user navigates to dialer control menu
-        Then user choose the following configurations in dialer control menu:
-            | campaign             | OutboundCampaign_1   |
-            | sortContactsPriority | By outcome and field |
-            | ratio                | 5                    |
-        And login to Voice Channel with '100' extension
-        And user selects 'OutboundCampaign_1' campaign
-        Then verify all contacts loaded in the database are triggered by the dialer
-            | number       | 910261828        |
-            | outcomeGroup | Call Again Later |
-            | outcomeName  | Ok               |
-        When Navigate to Database Manager
-        Then user click the previously created DB
-        And user validate that all contacts are closed by 'Closed'
-
-    @5697
-    Scenario: Power dial: Ratio 1 - sort by outcome - rule with phone2 only (valid)
-        When user navigates to dialer
-        Then select the dialer type 'power'
-        Then user navigates to Dialer rules manager tab
-        And user configure the folllowing rule:
-            | dialerName     | Rule_1 |
-            | phone          | 2      |
-            | startHour      | 09:00  |
-            | endHour        | 18:00  |
-            | maxDialerTries | 3      |
-        Then user click on the recycle button
-        When user set the following values in the recycle form:
-            | callOutcome | recycleInterval | maxTries |
-            | Busy        | 4h              | 3        |
-        And user clicks the finish button
-        When Navigate to Database Manager
-        And Create Database
-            | browseFile           | databaseCampaign | optionName | optionPhone1 | phone  | phoneID |
-            | fixtures/db_5721.csv | 1                | 0          | 1            | second | 2       |
-        Then load the database
-            | browseFile           | numOfColumnsToUpload | databaseCampaign | optionName | optionPhone1 | phone  | phoneID |
-            | fixtures/db_5721.csv | 1                    | 1                | 0          | 1            | second | 2       |
+            | browseFile                 | numOfColumnsToUpload | databaseCampaign | optionName | optionPhone1 | phone                                          | phoneID       |
+            | fixtures/database_5702.csv | 1                    | 1                | 0          | 1            | second,third,fourth,fifth,sixth,seventh,eighth | 2,3,4,5,6,7,8 |
         When user navigates to dialer control menu
         Then user choose the following configurations in dialer control menu:
             | campaign             | OutboundCampaign_1   |
@@ -1193,85 +1306,21 @@ Feature: Dialer Control
             | ratio                | 1                    |
         And login to Voice Channel with '100' extension
         And user selects 'OutboundCampaign_1' campaign
-        And let user wait for '2' seconds
-        Then user state should be 'talking'
-        And verify '910261829' is triggered by the dialer
-        When user disconnects the call
-        And user state should be 'outcomes'
-        Then user submits 'Call Again Later' outcome and select 'Ok' outcome name
-        When Navigate to Database Manager
-        Then user click the previously created DB
-        And user validate that all contacts are closed by 'Closed'
-
-    @5698
-    Scenario: Power dial: Ratio 1 - sort by outcome - rule with phone1 (valid) and phone2 (invalid)
-        When user navigates to dialer
-        Then select the dialer type 'power'
-        Then user navigates to Dialer rules manager tab
-        And user configure the folllowing rule:
-            | dialerName     | Rule_1 |
-            | phone          | 1,2    |
-            | startHour      | 09:00  |
-            | endHour        | 18:00  |
-            | maxDialerTries | 3      |
-        Then user click on the recycle button
-        When user set the following values in the recycle form:
-            | callOutcome | recycleInterval | maxTries |
-            | Busy        | 4h              | 3        |
-        And user clicks the finish button
-        When Navigate to Database Manager
-        And Create Database
-            | browseFile                 | databaseCampaign | optionName | optionPhone1 | phone  | phoneID |
-            | fixtures/database_5723.csv | 1                | 0          | 1            | second | 2       |
-        Then load the database
-            | browseFile                 | numOfColumnsToUpload | databaseCampaign | optionName | optionPhone1 | phone  | phoneID |
-            | fixtures/database_5723.csv | 1                    | 1                | 0          | 1            | second | 2       |
-        When user navigates to dialer control menu
-        Then user choose the following configurations in dialer control menu:
-            | campaign             | OutboundCampaign_1   |
-            | sortContactsPriority | By outcome and field |
-            | ratio                | 1                    |
-        And login to Voice Channel with '100' extension
-        And user selects 'OutboundCampaign_1' campaign
-        Then verify all contacts loaded in the database are triggered by the dialer
-            | number       | 808888888        |
-            | outcomeGroup | Call Again Later |
-            | outcomeName  | Ok               |
-        When Navigate to Database Manager
-        Then user click the previously created DB
-        And user validate that all contacts are closed by 'Closed'
-
-    @5879
-    Scenario: Power dial: Ratio 5 - sort by outcome - rule with phone1 only (invalid)
-        When user navigates to dialer
-        Then select the dialer type 'power'
-        Then user navigates to Dialer rules manager tab
-        And user configure the folllowing rule:
-            | dialerName     | Rule_1 |
-            | phone          | 1      |
-            | startHour      | 09:00  |
-            | endHour        | 18:00  |
-            | maxDialerTries | 3      |
-        Then user click on the recycle button
-        When user set the following values in the recycle form:
-            | callOutcome | recycleInterval | maxTries |
-            | Busy        | 4h              | 3        |
-        And user clicks the finish button
-        When Navigate to Database Manager
-        And Create Database
-            | browseFile                 | databaseCampaign | optionName | optionPhone1 |
-            | fixtures/database_5879.csv | 1                | 0          | 1            |
-        Then load the database
-            | browseFile                 | numOfColumnsToUpload | databaseCampaign | optionName | optionPhone1 |
-            | fixtures/database_5879.csv | 1                    | 1                | 0          | 1            |
-        When user navigates to dialer control menu
-        Then user choose the following configurations in dialer control menu:
-            | campaign             | OutboundCampaign_1   |
-            | sortContactsPriority | By outcome and field |
-            | ratio                | 1                    |
-        And login to Voice Channel with '100' extension
-        And user selects 'OutboundCampaign_1' campaign
-        And user state should be 'ready'
+        Then user state should be 'ready'
+        Then let user wait for '300' seconds
+        When user navigate to crm
+        And user search the call by using following configurations:
+            | channel   | Outbound           |
+            | campaigns | OutboundCampaign_1 |
+            | database  | 0                  |
+            | agents    | no                 |
+        And validate that the call is registered as per following configurations:
+            | phoneNumber | 990000002          |
+            | callOutcome | Network Failure    |
+            | agentName   | Dialer             |
+            | owner       | OutboundCampaign_1 |
+            | termReason  | DIALER             |
+            | subtype     | alt-dial           |
         When Navigate to Database Manager
         Then user click the previously created DB
         And user validate that all contacts are closed by 'Closed'

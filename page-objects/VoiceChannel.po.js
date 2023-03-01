@@ -140,7 +140,8 @@ exports.VoiceChannel = class VoiceChannel extends BaseAction {
     callTransferToggle: 'input[name = "call-transfers"]',
     callTransferToggleLink: '//*[@name = "call-transfers"]/parent::label/i',
     callTransferButton: '#voiceControls-transfer',
-    outcomesTab: 'span[data-translate="calloutcomes"]',
+    // outcomesTab: 'span[data-translate="calloutcomes"]',
+    outcomesTab: '[id="voice-tab-voice-outcomes"]',
     addOutcomeBtn: 'span[data-translate="addoutcome"]',
     outcomeNameInput: '.outcome-table tr:nth-child(1) .outcome-edit',
     outcomeGroupSelect:
@@ -495,7 +496,7 @@ exports.VoiceChannel = class VoiceChannel extends BaseAction {
    */
   async submitOutcomes(outcomeGroup, outcomeName, type = '') {
     let outcomeGroupSelector = `//*[contains(text(),'${outcomeGroup}')]`;
-    if(await this.isVisible(outcomeGroupSelector, type)){
+    // if(await this.isVisible(outcomeGroupSelector, type)){
       await this.waitForSelector(outcomeGroupSelector, type);
       if(!await this.isVisible(outcomeGroupSelector,type)){
         await this.click(this.elements.outcomesTab);
@@ -512,7 +513,7 @@ exports.VoiceChannel = class VoiceChannel extends BaseAction {
       }
       await this.click(this.elements.submitVoiceOutcomeButton, type);
     }
-  }
+  // }
 
   /**
    * Function to verify user state

@@ -59,19 +59,22 @@ exports.DialerControl = class DialerControl extends BaseAction {
     deleteDatabase: '#delete-db-button',
     confirmDeleteDatabase: '#yesdeleteDB',
     popUpMsg: '#newContentdiv',
-    allDayCheckbox: '#rule-schedule .checkbox'
+    allDayCheckbox: '#rule-schedule .checkbox',
+    hopperData: '//table[@id="dialer-control-hopper-preview-table"]//tbody//tr',
+    hopperCloseButton: '[class="btn btn-primary pull-right"]',
+    hopperRefreshButton: '[id="dialer-control-refresh-hopper"]'
   };
 
   /**
    * function to click to create filter
    * @return {void} Nothing
    */
-  async clickCreateFilter(){
-    if(await this.isVisible(this.elements.createFilterButton)){
+  async clickCreateFilter() {
+    if (await this.isVisible(this.elements.createFilterButton)) {
       await this.waitForSelector(this.elements.createFilterButton);
       await this.click(this.elements.createFilterButton);
       await this.wait(3); //wait to load view
-      if(!(await this.isVisible(this.elements.filterView))){
+      if (!(await this.isVisible(this.elements.filterView))) {
         await this.click(this.elements.createFilterButton);
         await this.isVisible(this.elements.filterView);
       }
@@ -82,7 +85,7 @@ exports.DialerControl = class DialerControl extends BaseAction {
    * function to click to add filter
    * @return {void} Nothing
    */
-  async addFilter(){
+  async addFilter() {
     await this.waitForSelector(this.elements.addFilterButton);
     await this.click(this.elements.addFilterButton);
   }
@@ -99,8 +102,8 @@ exports.DialerControl = class DialerControl extends BaseAction {
    * @param {string} datatable.filterData - select filter data
    * @return {void} Nothing
    */
-  async createFilter(datatable){
-    if(datatable.database){
+  async createFilter(datatable) {
+    if (datatable.database) {
       await this.waitForSelector(this.elements.dbToggleButton);
       await this.wait(2); //wait to pause, because speed is so quick
       await this.click(this.elements.dbToggleButton);
@@ -112,11 +115,11 @@ exports.DialerControl = class DialerControl extends BaseAction {
       await this.click(this.elements.dbToggleButton);
     }
 
-    if(datatable.field){
+    if (datatable.field) {
       await this.waitForSelector(this.elements.fieldToggleButton);
       await this.click(this.elements.fieldToggleButton);
       await this.type(this.elements.activeInput, datatable.field);
-      if(datatable.group){
+      if (datatable.group) {
         let groupTitle = `//div[@id='select2-drop']//ul//li[contains(@class,'select2-result-with-children')]//div[contains(.,'${datatable.group}')]`;
         await this.shouldVisible(groupTitle);
       }
@@ -125,19 +128,19 @@ exports.DialerControl = class DialerControl extends BaseAction {
       await this.click(fieldSelector);
     }
 
-    if(datatable.startTime){
+    if (datatable.startTime) {
       await this.waitForSelector(this.elements.startTime);
       await this.type(this.elements.startTime, datatable.startTime);
       await this.pressKey('Enter');
     }
-    
-    if(datatable.endTime){
+
+    if (datatable.endTime) {
       await this.waitForSelector(this.elements.endTime);
       await this.type(this.elements.endTime, datatable.endTime);
       await this.pressKey('Enter');
     }
-    
-    if(datatable.filterType){
+
+    if (datatable.filterType) {
       await this.waitForSelector(this.elements.filterType);
       await this.click(this.elements.filterType);
       await this.wait(2); //wait to pause, because speed is so quick
@@ -148,7 +151,7 @@ exports.DialerControl = class DialerControl extends BaseAction {
       await this.click(filterTypeSelector);
     }
 
-    if(datatable.filterData){
+    if (datatable.filterData) {
       await this.waitForSelector(this.elements.filterData);
       await this.type(this.elements.filterData, datatable.filterData);
       await this.pressKey('Enter');
@@ -172,7 +175,7 @@ exports.DialerControl = class DialerControl extends BaseAction {
    * function to click to preview button
    * @return {void} Nothing
    */
-  async clickToPreview(){
+  async clickToPreview() {
     //wait for dialer oage to load
     await this.wait(3);
     await this.waitForSelector(this.elements.previewButton);
@@ -191,51 +194,59 @@ exports.DialerControl = class DialerControl extends BaseAction {
    * @param {string} index - index of row
    * @return {void} Nothing
    */
-  async validateHopperData(datatable, index){
-    const selectRow = '#dialer-control-hopper-preview-table tbody tr:nth-child('+(index+1)+')';
-    if(datatable.name){
-      await this.waitForSelector(selectRow +' td:nth-child(3)');
+  async validateHopperData(datatable, index) {
+    const selectRow = '#dialer-control-hopper-preview-table tbody tr:nth-child(' + (index + 1) + ')';
+    if (!await this.isVisible(this.elements.hopperData)) {
+      await this.wait(60);
+      await this.click(this.elements.hopperCloseButton);
+      await this.click(this.elements.hopperRefreshButton);
+      await this.wait(5);
+      await this.click(this.elements.previewButton);
+      await this.waitForSelector(this.elements.hopperPreviewModal);
+    }
+    if (datatable.name) {
+      await this.waitForSelector(selectRow + ' td:nth-child(5)');
       await this.shouldContainText(
-        selectRow +' td:nth-child(3)',
+        selectRow + ' td:nth-child(5)',
         datatable.name
       );
     }
 
-    if(datatable.phone){
-      await this.waitForSelector(selectRow +' td:nth-child(4)');
+    if (datatable.phone) {
+      await this.waitForSelector(selectRow + ' td:nth-child(6)');
       await this.shouldContainText(
-        selectRow +' td:nth-child(4)',
+        selectRow + ' td:nth-child(6)',
         datatable.phone
       );
     }
 
-    if(datatable.email){
-      await this.waitForSelector(selectRow +' td:nth-child(5)');
+    if (datatable.email) {
+      await this.waitForSelector(selectRow + ' td:nth-child(7)');
       await this.shouldContainText(
-        selectRow +' td:nth-child(5)',
+        selectRow + ' td:nth-child(7)',
         datatable.email
       );
     }
-    
-    if(datatable.postalCode){
-      await this.waitForSelector(selectRow +' td:nth-child(7)');
+
+    if (datatable.postalCode) {
+      await this.waitForSelector(selectRow + ' td:nth-child(9)');
       await this.shouldContainText(
-        selectRow +' td:nth-child(7)',
+        selectRow + ' td:nth-child(9)',
         datatable.postalCode
       );
     }
-    
-    if(datatable.city){
-      await this.waitForSelector(selectRow +' td:nth-child(8)');
+
+    if (datatable.city) {
+      await this.waitForSelector(selectRow + ' td:nth-child(10)');
       await this.shouldContainText(
-        selectRow +' td:nth-child(8)',
+        selectRow + ' td:nth-child(10)',
         datatable.city
       );
     }
-    if(datatable.status){
-      await this.waitForSelector(selectRow +' td:nth-child(2)');
+    if (datatable.status) {
+      await this.waitForSelector(selectRow + ' td:nth-child(2)');
       await this.shouldContainText(
-        selectRow +' td:nth-child(2)',
+        selectRow + ' td:nth-child(2)',
         datatable.status
       );
     }
@@ -245,7 +256,7 @@ exports.DialerControl = class DialerControl extends BaseAction {
    * function to click to close button
    * @return {void} Nothing
    */
-  async clickToClose(){
+  async clickToClose() {
     await this.waitForSelector(this.elements.closeButton);
     await this.click(this.elements.closeButton);
   }
@@ -254,10 +265,10 @@ exports.DialerControl = class DialerControl extends BaseAction {
    * function to clear active filters of campaign
    * @return {void} Nothing
    */
-  async clearFilters(){
-    if(await this.isVisible(this.elements.deleteFilter)){
+  async clearFilters() {
+    if (await this.isVisible(this.elements.deleteFilter)) {
       const totalFilter = await this.countElement(this.elements.deleteIcon);
-      for(let i = 0; i < totalFilter; i++){
+      for (let i = 0; i < totalFilter; i++) {
         await this.waitForSelector(this.elements.deleteFilter);
         await this.wait(2); //wait needed to visible element
         await this.click(this.elements.deleteFilter);
@@ -271,8 +282,8 @@ exports.DialerControl = class DialerControl extends BaseAction {
    * function to clear hopper data
    * @return {void} Nothing
    */
-  async clearHopperData(){
-    if(await this.isVisible(this.elements.clearHopper)){
+  async clearHopperData() {
+    if (await this.isVisible(this.elements.clearHopper)) {
       await this.waitForSelector(this.elements.clearHopper);
       await this.click(this.elements.clearHopper);
       await this.waitForSelector(this.elements.confirmButton);
@@ -286,7 +297,7 @@ exports.DialerControl = class DialerControl extends BaseAction {
    * @param {string} direction - direction of order
    * @return {void} Nothing
    */
-  async updateConfiguration(fieldOrder, direction){
+  async updateConfiguration(fieldOrder, direction) {
     await this.waitForSelector(this.elements.fieldOrder);
     await this.selectOptionByValue(this.elements.fieldOrder, fieldOrder);
     await this.waitForSelector(this.elements.orderDirection);
@@ -298,7 +309,7 @@ exports.DialerControl = class DialerControl extends BaseAction {
    * function to add new group
    * @return {void} Nothing
    */
-  async addGroup(){
+  async addGroup() {
     await this.waitForSelector(this.elements.addGroup);
     await this.click(this.elements.addGroup);
     await this.waitForSelector(this.elements.addedGroupOr);
@@ -330,10 +341,10 @@ exports.DialerControl = class DialerControl extends BaseAction {
     await this.clearField(this.elements.dialerName);
     await this.type(this.elements.dialerName, dialerRule.dialerName);
     await this.pressKey('Enter');
-    if(dialerRule.phone){
-      if(await this.isVisible(this.elements.deletePhoneButton)){
+    if (dialerRule.phone) {
+      if (await this.isVisible(this.elements.deletePhoneButton)) {
         const totalPhones = await this.countElement(this.elements.totalPhoneList);
-        for(let i = 0; i < totalPhones; i++){
+        for (let i = 0; i < totalPhones; i++) {
           await this.waitForSelector(this.elements.deletePhoneButton);
           await this.click(this.elements.deletePhoneButton);
         }
@@ -346,19 +357,19 @@ exports.DialerControl = class DialerControl extends BaseAction {
 
     }
     await this.uncheckToCheckbox(this.elements.allDayCheckbox);
-    if(dialerRule.startHour){
+    if (dialerRule.startHour) {
       await this.click(this.elements.dailerStartTime);
       await this.clearField(this.elements.dailerStartTime);
       await this.type(this.elements.dailerStartTime, dialerRule.startHour);
       await this.pressKey('Enter');
     }
-    if(dialerRule.endHour){
+    if (dialerRule.endHour) {
       await this.click(this.elements.dailerEndTime);
       await this.clearField(this.elements.dailerEndTime);
       await this.type(this.elements.dailerEndTime, dialerRule.endHour);
       await this.pressKey('Enter');
     }
-    if(dialerRule.maxDialerTries){
+    if (dialerRule.maxDialerTries) {
       await this.click(this.elements.dailerMaxtries);
       await this.clearField(this.elements.dailerMaxtries);
       await this.type(this.elements.dailerMaxtries, dialerRule.maxDialerTries);
@@ -371,7 +382,7 @@ exports.DialerControl = class DialerControl extends BaseAction {
     * @returns {void} nothing
     */
   async clickRecycleButton() {
-    if(await this.isVisible(this.elements.removePreviousRecycle)){
+    if (await this.isVisible(this.elements.removePreviousRecycle)) {
       await this.click(this.elements.removePreviousRecycle);
     }
     await this.waitForSelector(this.elements.recycleAddButton);

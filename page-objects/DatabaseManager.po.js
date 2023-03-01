@@ -71,6 +71,8 @@ exports.Database = class Database extends BaseAction {
     extraFieldTemplate: '//select[@id="new_db_extra_fields_select"]',
     dailyContactMaxTries: '#daily-max-tries',
     contactMaxTries: '#contact-max-tries',
+    previousDatabase: '//table[@id="databases_table"]//tr[1]//td[1]',
+    previousDatabaseVerify: '//table[@id="databases_table"]//tr[1]//i[@class="databaseSwitch"]'
   };
   /**
    * function to create database
@@ -80,6 +82,12 @@ exports.Database = class Database extends BaseAction {
    */
 
   async createDatabase(databaseName, databaseDetails) {
+    await this.waitForSelector(this.elements.previousDatabaseVerify);
+    if(await this.isVisible(this.elements.previousDatabaseVerify)){
+      await this.click(this.elements.previousDatabase);
+      await this.click(this.elements.deleteDatabase);
+      await this.click(this.elements.confirmDeleteDatabase);
+    }
     try {
       await this.click(this.elements.selectNew);
       await this.waitForSelector(this.elements.databaseName);
